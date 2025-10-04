@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Linux for Everybody — 100 Topic Tracker</title>
+  <style>
+    :root{
+      --bgA: #e6fff7;
+      --bgB: #fff1ea;
+      --card: #ffffffcc;
+      --muted: #586068;
+      --accent: #6bb77b;
+      --accent-weak: #cfead4;
+      --shadow: 0 6px 20px rgba(20,20,30,0.06);
+      --radius: 10px;
+      --maxWidth: 980px;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      background: linear-gradient(135deg, var(--bgA) 0%, var(--bgB) 100%);
+      color:#1f2a2f;
+    }
+    .wrap{
+      max-width: var(--maxWidth);
+      margin: 34px auto;
+      padding: 26px;
+    }
+    header{
+      display:flex;
+      gap:18px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+    h1{
+      font-size:20px;
+      margin:0;
+      color:#123;
+      letter-spacing:0.2px;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
+    /* progress block */
+    .progress-wrap{
+      width: 100%;
+      background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .progress-box{
+      flex:1;
+    }
+    .progress-info{
+      display:flex;
+      justify-content:space-between;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .progress-bar{
+      height:12px;
+      width:100%;
+      background:var(--accent-weak);
+      border-radius:999px;
+      overflow:hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+    }
+    .progress-bar > i {
+      display:block;
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), #4f9c63);
+      transition: width 260ms ease;
+    }
+    .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    button{
+      background:#fff;
+      border:1px solid #e6e6e6;
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:13px;
+      cursor:pointer;
+      box-shadow: 0 2px 6px rgba(20,20,30,0.04);
+    }
+    button.ghost{
+      background:transparent;
+    }
+    button.primary{
+      background:var(--accent);
+      color:#fff;
+      border: none;
+    }
+    main{
+      margin-top:18px;
+      display:grid;
+      gap:12px;
+    }
+    /* module card */
+    details.module{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:0;
+      overflow:hidden;
+      border:1px solid rgba(17,24,28,0.06);
+      box-shadow: var(--shadow);
+    }
+    details.module summary{
+      list-style:none;
+      cursor:pointer;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(250,250,250,0.6));
+    }
+    details.module summary::-webkit-details-marker{ display:none; }
+    .module-left{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .module-dot{
+      width:12px;height:12px;border-radius:6px;background:var(--accent-weak);
+      border:1px solid rgba(0,0,0,0.04);
+    }
+    .module-title{
+      font-weight:600;
+      font-size:15px;
+      color:#123;
+    }
+    .module-sub{
+      font-size:12px;color:var(--muted);
+    }
+    .chev{
+      width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      background:transparent;border:1px solid transparent;
+    }
+    details.module[open] .chev{ transform: rotate(90deg); transition: transform 180ms ease; }
+    /* topics list */
+    .topics{
+      padding:10px 18px 16px 18px;
+      display:grid;
+      gap:10px;
+    }
+    .topic{
+      padding:10px;
+      border-radius:8px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,250,0.98));
+      border:1px solid rgba(17,24,28,0.04);
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .left{
+      flex:0 0 28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:2px;
+    }
+    .right{
+      flex:1;
+    }
+    .right label{
+      display:block;
+      font-weight:600;
+      font-size:14px;
+      margin-bottom:6px;
+    }
+    .task{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.4;
+      background:transparent;
+    }
+    input[type="checkbox"]{
+      width:18px;height:18px;
+      margin:0;
+      transform: translateY(0.4px);
+      accent-color: var(--accent);
+      border-radius:4px;
+      cursor:pointer;
+    }
+    /* small footer */
+    footer{
+      margin-top:18px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* responsive */
+    @media (max-width:720px){
+      .wrap{ padding:14px; margin:18px 14px; }
+      .progress-wrap{ flex-direction:column; align-items:stretch; gap:8px; }
+      header{ flex-direction:column; align-items:flex-start; gap:8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Linux for Everybody — 100 Topic Track & Tasks</h1>
+        <div class="subtitle">Pastel UI · Collapsible modules · Tasks for every topic</div>
+      </div>
+
+      <div style="min-width:280px;">
+        <div class="progress-wrap" role="region" aria-label="Progress">
+          <div class="progress-box">
+            <div class="progress-info">
+              <div id="countText">Completed 0 / 100</div>
+              <div id="percentText">0%</div>
+            </div>
+            <div class="progress-bar" aria-hidden="true"><i id="barFill"></i></div>
+          </div>
+          <div class="controls">
+            <button id="expandAll" title="Expand all modules">Expand</button>
+            <button id="collapseAll" title="Collapse all modules">Collapse</button>
+            <button id="resetBtn" title="Reset all progress" class="ghost">Reset</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="modules">
+      <!-- We'll generate 20 modules (5 topics each) - total 100 -->
+      <!-- MODULE 1 -->
+      <details class="module" open>
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 1 — Getting Started</div>
+              <div class="module-sub">Intro, distro choices, and USB boot</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t1"></div>
+            <div class="right">
+              <label for="t1">What is Linux?</label>
+              <div class="task">Task: Search "What is Linux" and write down 3 things that make it different from Windows/Mac.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t2"></div>
+            <div class="right">
+              <label for="t2">Different Linux distributions</label>
+              <div class="task">Task: List 3 distros (e.g., Ubuntu, Fedora, Mint) and note one use-case for each.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t3"></div>
+            <div class="right">
+              <label for="t3">Downloading an ISO (Ubuntu example)</label>
+              <div class="task">Task: Visit ubuntu.com and download the ISO for the latest stable release.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t4"></div>
+            <div class="right">
+              <label for="t4">Creating a bootable USB</label>
+              <div class="task">Task: Use BalenaEtcher or Rufus to write the downloaded ISO to a USB drive.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t5"></div>
+            <div class="right">
+              <label for="t5">Try in a virtual machine</label>
+              <div class="task">Task: Install VirtualBox and boot the ISO inside a VM for safe practice.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 2 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 2 — First Steps</div>
+              <div class="module-sub">Login, UI basics, and system updates</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t6"></div>
+            <div class="right">
+              <label for="t6">First login & exploring desktop</label>
+              <div class="task">Task: Log in, open the settings app, and change the wallpaper.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t7"></div>
+            <div class="right">
+              <label for="t7">Using the file manager</label>
+              <div class="task">Task: Create a new folder called <code>linux-practice</code> in your home directory.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t8"></div>
+            <div class="right">
+              <label for="t8">Open terminal</label>
+              <div class="task">Task: Open Terminal and run <code>whoami</code> and <code>pwd</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t9"></div>
+            <div class="right">
+              <label for="t9">System update</label>
+              <div class="task">Task: Run <code>sudo apt update && sudo apt upgrade</code> in terminal (or GUI updater).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t10"></div>
+            <div class="right">
+              <label for="t10">Install a first app</label>
+              <div class="task">Task: Install <code>vlc</code> with <code>sudo apt install vlc</code> (or use Software Center).</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 3 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 3 — Files & Commands</div>
+              <div class="module-sub">Basics of filesystem and simple shell commands</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t11"></div>
+            <div class="right">
+              <label for="t11">Understanding /, /home, /etc</label>
+              <div class="task">Task: Run <code>ls /</code> and note three directories and guess their role.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t12"></div>
+            <div class="right">
+              <label for="t12">Navigating with cd & ls</label>
+              <div class="task">Task: Use <code>cd</code> to go to <code>/tmp</code>, then list contents with <code>ls -la</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t13"></div>
+            <div class="right">
+              <label for="t13">Creating & deleting files</label>
+              <div class="task">Task: Create a file: <code>touch test.txt</code>, then delete it: <code>rm test.txt</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t14"></div>
+            <div class="right">
+              <label for="t14">Copy & move files</label>
+              <div class="task">Task: Make a copy: <code>cp file1 file1.bak</code>, move it: <code>mv file1.bak folder/</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t15"></div>
+            <div class="right">
+              <label for="t15">File permissions overview</label>
+              <div class="task">Task: Run <code>ls -l</code>, then change a file's permission with <code>chmod u+x script.sh</code>.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 4 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 4 — Essential Applications</div>
+              <div class="module-sub">Office, media, and image tools</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t16"></div>
+            <div class="right">
+              <label for="t16">Install LibreOffice</label>
+              <div class="task">Task: Install LibreOffice and create a short document saved to your linux-practice folder.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t17"></div>
+            <div class="right">
+              <label for="t17">Make a presentation</label>
+              <div class="task">Task: Create a 3-slide presentation introducing yourself using Impress.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t18"></div>
+            <div class="right">
+              <label for="t18">Install and use VLC</label>
+              <div class="task">Task: Play a local video in VLC and adjust playback speed.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t19"></div>
+            <div class="right">
+              <label for="t19">Install GIMP</label>
+              <div class="task">Task: Open an image and crop + resize it to 800×600 in GIMP.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t20"></div>
+            <div class="right">
+              <label for="t20">Install a Typing Tutor</label>
+              <div class="task">Task: Install Tux Typing or Klavaro and practice for 10 minutes.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 5 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 5 — Internet & Communication</div>
+              <div class="module-sub">Browsers, email, chat, and cloud</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t21"></div>
+            <div class="right">
+              <label for="t21">Install another browser</label>
+              <div class="task">Task: Install Chromium or Firefox and set it as default browser.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t22"></div>
+            <div class="right">
+              <label for="t22">Set up email client</label>
+              <div class="task">Task: Install Thunderbird and add your Gmail (or test) account.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t23"></div>
+            <div class="right">
+              <label for="t23">Install messaging apps</label>
+              <div class="task">Task: Install Telegram Desktop and send a message to a friend or yourself.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t24"></div>
+            <div class="right">
+              <label for="t24">Use cloud storage</label>
+              <div class="task">Task: Connect Google Drive (via GNOME online accounts or rclone) and upload one file.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t25"></div>
+            <div class="right">
+              <label for="t25">Screen sharing / video calls</label>
+              <div class="task">Task: Install Zoom and start or join a test call (or practice locally).</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 6 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 6 — Terminal Basics</div>
+              <div class="module-sub">Commands that matter every day</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t26"></div>
+            <div class="right">
+              <label for="t26">pwd, ls, cd</label>
+              <div class="task">Task: Use <code>pwd</code>, <code>ls -la</code>, then <code>cd ..</code> to move around.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t27"></div>
+            <div class="right">
+              <label for="t27">Creating files with echo & touch</label>
+              <div class="task">Task: Create a short text file: <code>echo "hello" > note.txt</code> and view it with <code>cat</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t28"></div>
+            <div class="right">
+              <label for="t28">Using nano editor</label>
+              <div class="task">Task: Open <code>nano note.txt</code>, edit, save (Ctrl+O) and exit (Ctrl+X).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t29"></div>
+            <div class="right">
+              <label for="t29">apt install / remove</label>
+              <div class="task">Task: Install a small tool (e.g., <code>neofetch</code>) and then remove it: <code>sudo apt remove neofetch</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t30"></div>
+            <div class="right">
+              <label for="t30">man pages & --help</label>
+              <div class="task">Task: Run <code>man ls</code> or <code>ls --help</code> and read one useful flag.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 7 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 7 — Users & Permissions</div>
+              <div class="module-sub">Accounts, sudo and basic security</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t31"></div>
+            <div class="right">
+              <label for="t31">Create a new user</label>
+              <div class="task">Task: Add a test user in a VM: <code>sudo adduser student1</code> and switch with <code>su - student1</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t32"></div>
+            <div class="right">
+              <label for="t32">Sudo basics</label>
+              <div class="task">Task: Run a safe command with sudo like <code>sudo ls /root</code> to see how it prompts for a password.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t33"></div>
+            <div class="right">
+              <label for="t33">File ownership (chown)</label>
+              <div class="task">Task: Create a file and change its owner: <code>sudo chown root:root file.txt</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t34"></div>
+            <div class="right">
+              <label for="t34">Permissions (chmod)</label>
+              <div class="task">Task: Make a script executable: <code>chmod +x script.sh</code> and run it.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t35"></div>
+            <div class="right">
+              <label for="t35">Understanding groups</label>
+              <div class="task">Task: List groups for a user: <code>groups $(whoami)</code> and note results.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 8 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 8 — Disk & Storage</div>
+              <div class="module-sub">Mounts, disks, and backups</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t36"></div>
+            <div class="right">
+              <label for="t36">Check disk usage</label>
+              <div class="task">Task: Run <code>df -h</code> and <code>du -sh *</code> inside your folder to see sizes.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t37"></div>
+            <div class="right">
+              <label for="t37">Mount/unmount USB drive</label>
+              <div class="task">Task: Plug a USB, find it via <code>lsblk</code>, mount it and then safely unmount.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t38"></div>
+            <div class="right">
+              <label for="t38">Format a USB (GUI or terminal)</label>
+              <div class="task">Task: Format a spare USB to FAT32 using Disks or <code>mkfs.vfat</code> (careful—data loss).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t39"></div>
+            <div class="right">
+              <label for="t39">Create an archive</label>
+              <div class="task">Task: Compress a folder: <code>tar -czvf backup.tar.gz linux-practice/</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t40"></div>
+            <div class="right">
+              <label for="t40">Backup basics</label>
+              <div class="task">Task: Copy important files to an external drive or create a cloud backup.</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- MODULE 9 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 9 — Multimedia & Creativity</div>
+              <div class="module-sub">Audio, video, and editing</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t41"></div>
+            <div class="right">
+              <label for="t41">Record audio with Audacity</label>
+              <div class="task">Task: Install Audacity and record a 30-second voice note, save as MP3/WAV.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t42"></div>
+            <div class="right">
+              <label for="t42">Edit simple video with Shotcut/Kdenlive</label>
+              <div class="task">Task: Cut a 10-15 second clip and export a short MP4.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t43"></div>
+            <div class="right">
+              <label for="t43">Take screenshots & annotate</label>
+              <div class="task">Task: Take a screenshot and annotate it using the built-in tool or GIMP.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t44"></div>
+            <div class="right">
+              <label for="t44">Play music & organize playlists</label>
+              <div class="task">Task: Add 5 songs to a playlist in your music player and play them shuffled.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t45"></div>
+            <div class="right">
+              <label for="t45">Create thumbnails (GIMP)</label>
+              <div class="task">Task: Make a 1280×720 thumbnail image with a title for a mock video.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 10 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 10 — Productivity Tools</div>
+              <div class="module-sub">Notes, mind-maps, and screen recording</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t46"></div>
+            <div class="right">
+              <label for="t46">Install a note app (Joplin)</label>
+              <div class="task">Task: Create a new notebook and add 3 notes about Linux learning goals.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t47"></div>
+            <div class="right">
+              <label for="t47">Make a mind map</label>
+              <div class="task">Task: Use Freeplane or draw a study plan mind map for your 100 videos.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t48"></div>
+            <div class="right">
+              <label for="t48">Record screen with OBS</label>
+              <div class="task">Task: Install OBS, record a 30-second screen demo and save the file.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t49"></div>
+            <div class="right">
+              <label for="t49">Organize tasks with a TODO app</label>
+              <div class="task">Task: Create a simple todo list in a notes app and mark 2 items done.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t50"></div>
+            <div class="right">
+              <label for="t50">Use a calendar for scheduling</label>
+              <div class="task">Task: Add two recording sessions to your calendar with reminders.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 11 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 11 — System Customization</div>
+              <div class="module-sub">Themes, icons, and desktops</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t51"></div>
+            <div class="right">
+              <label for="t51">Change themes & icons</label>
+              <div class="task">Task: Download a theme/icon pack and apply it via Tweaks or Settings.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t52"></div>
+            <div class="right">
+              <label for="t52">Set font scaling for readability</label>
+              <div class="task">Task: Increase interface scaling to make UI elements larger if needed.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t53"></div>
+            <div class="right">
+              <label for="t53">Install another desktop (XFCE/KDE)</label>
+              <div class="task">Task: Install XFCE or KDE session and try logging into it at next login.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t54"></div>
+            <div class="right">
+              <label for="t54">Create custom keyboard shortcuts</label>
+              <div class="task">Task: Make a shortcut to open Terminal with a key combo.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t55"></div>
+            <div class="right">
+              <label for="t55">Set up startup apps</label>
+              <div class="task">Task: Add a small app to autostart (like a notes app) and test reboot.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 12 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 12 — Display & Input</div>
+              <div class="module-sub">Monitors, resolution, and keyboard</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t56"></div>
+            <div class="right">
+              <label for="t56">Set screen resolution</label>
+              <div class="task">Task: Change resolution in Display Settings to recommended or another supported size.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t57"></div>
+            <div class="right">
+              <label for="t57">Configure multiple monitors</label>
+              <div class="task">Task: Attach a second monitor and configure layout (mirror or extend).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t58"></div>
+            <div class="right">
+              <label for="t58">Change keyboard layout</label>
+              <div class="task">Task: Add an alternate keyboard layout (e.g., US → IN) and switch between them.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t59"></div>
+            <div class="right">
+              <label for="t59">Adjust touchpad & mouse settings</label>
+              <div class="task">Task: Disable tap-to-click or change pointer speed to your preference.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t60"></div>
+            <div class="right">
+              <label for="t60">Night Light / Blue light filter</label>
+              <div class="task">Task: Enable Night Light or similar feature to reduce blue light in the evening.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 13 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 13 — Networking</div>
+              <div class="module-sub">Wi-Fi, tethering, and sharing</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t61"></div>
+            <div class="right">
+              <label for="t61">Connect to Wi-Fi</label>
+              <div class="task">Task: Join a Wi-Fi network and verify internet by pinging <code>ping -c 3 google.com</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t62"></div>
+            <div class="right">
+              <label for="t62">Mobile tethering</label>
+              <div class="task">Task: Use phone hotspot (USB or Wi-Fi) to connect your Linux machine to the internet.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t63"></div>
+            <div class="right">
+              <label for="t63">Check IP & network info</label>
+              <div class="task">Task: Run <code>ip a</code> or <code>ifconfig</code> (if installed) and note the device names.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t64"></div>
+            <div class="right">
+              <label for="t64">Share a folder over network</label>
+              <div class="task">Task: Share a folder with Samba (install & create a test share) or use simple file transfer.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t65"></div>
+            <div class="right">
+              <label for="t65">Troubleshoot connectivity</label>
+              <div class="task">Task: If no internet, try restarting NetworkManager: <code>sudo systemctl restart NetworkManager</code>.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 14 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 14 — Software Management</div>
+              <div class="module-sub">Debs, Snaps, Flatpaks and packages</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t66"></div>
+            <div class="right">
+              <label for="t66">Install .deb packages</label>
+              <div class="task">Task: Download a small .deb and install using <code>sudo dpkg -i package.deb</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t67"></div>
+            <div class="right">
+              <label for="t67">Use Snap & Flatpak</label>
+              <div class="task">Task: Install a Snap app (<code>sudo snap install hello-world</code>) or a Flatpak app.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t68"></div>
+            <div class="right">
+              <label for="t68">List installed packages</label>
+              <div class="task">Task: Run <code>apt list --installed | head</code> to see installed packages.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t69"></div>
+            <div class="right">
+              <label for="t69">Add & remove repositories</label>
+              <div class="task">Task: Add a PPA or repo (practice with a safe one) and update package lists.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t70"></div>
+            <div class="right">
+              <label for="t70">Fix broken packages</label>
+              <div class="task">Task: If apt is broken, run <code>sudo apt --fix-broken install</code>.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 15 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 15 — System Monitoring</div>
+              <div class="module-sub">Processes, logs and health checks</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t71"></div>
+            <div class="right">
+              <label for="t71">Check running processes</label>
+              <div class="task">Task: Run <code>top</code> or <code>htop</code> (if installed) and note CPU usage.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t72"></div>
+            <div class="right">
+              <label for="t72">View system logs</label>
+              <div class="task">Task: Run <code>journalctl -n 30</code> to view recent logs and spot a message.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t73"></div>
+            <div class="right">
+              <label for="t73">Check memory usage</label>
+              <div class="task">Task: Run <code>free -h</code> and note total and available RAM.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t74"></div>
+            <div class="right">
+              <label for="t74">Check disk health</label>
+              <div class="task">Task: Install smartmontools and run a quick health check on a drive (if available).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t75"></div>
+            <div class="right">
+              <label for="t75">Kill a frozen process</label>
+              <div class="task">Task: Use <code>ps aux | grep</code> to find a PID and <code>kill -9 PID</code> (use on safe apps).</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 16 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 16 — Troubleshooting</div>
+              <div class="module-sub">Common issues and fixes</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t76"></div>
+            <div class="right">
+              <label for="t76">No sound fix</label>
+              <div class="task">Task: Open Sound Settings, switch output device and test audio; try <code>alsamixer</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t77"></div>
+            <div class="right">
+              <label for="t77">Wi-Fi driver issues</label>
+              <div class="task">Task: Identify device with <code>lspci</code> and search for recommended driver packages.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t78"></div>
+            <div class="right">
+              <label for="t78">Boot problems & recovery</label>
+              <div class="task">Task: Boot into recovery mode (GRUB) in your VM and explore safe options like fsck (do not run risky commands on real machine).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t79"></div>
+            <div class="right">
+              <label for="t79">Fixing broken updates</label>
+              <div class="task">Task: If update fails, try <code>sudo apt --fix-broken install</code> and <code>sudo dpkg --configure -a</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t80"></div>
+            <div class="right">
+              <label for="t80">Recover deleted files (basic)</label>
+              <div class="task">Task: Check Trash first; if using ext4, explore testdisk on a copy/VM (advanced, be cautious).</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 17 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 17 — Shell Scripting</div>
+              <div class="module-sub">Beginner scripts and automation</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t81"></div>
+            <div class="right">
+              <label for="t81">Hello world shell script</label>
+              <div class="task">Task: Create <code>hello.sh</code> with <code>echo "Hello"</code>, make executable and run it.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t82"></div>
+            <div class="right">
+              <label for="t82">Using variables</label>
+              <div class="task">Task: Write a script that stores your name in a variable and prints a greeting.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t83"></div>
+            <div class="right">
+              <label for="t83">If statements</label>
+              <div class="task">Task: Create a script that asks for a number and prints if it's zero/non-zero (read with <code>read</code>).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t84"></div>
+            <div class="right">
+              <label for="t84">Loops (for/while)</label>
+              <div class="task">Task: Write a for-loop that prints numbers 1 to 5.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t85"></div>
+            <div class="right">
+              <label for="t85">Make a small backup script</label>
+              <div class="task">Task: Create a script that tar.gz's a folder and places it in backups/ directory.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 18 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 18 — Remote Access</div>
+              <div class="module-sub">SSH, SCP and remote basics</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t86"></div>
+            <div class="right">
+              <label for="t86">Intro to SSH</label>
+              <div class="task">Task: On a VM, start an SSH server and connect from host with <code>ssh user@localhost</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t87"></div>
+            <div class="right">
+              <label for="t87">Secure keys (generate)</label>
+              <div class="task">Task: Generate an SSH keypair with <code>ssh-keygen</code> and copy public key to VM's <code>~/.ssh/authorized_keys</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t88"></div>
+            <div class="right">
+              <label for="t88">Transfer files with scp</label>
+              <div class="task">Task: Use <code>scp</code> to copy a file from local to remote VM and back.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t89"></div>
+            <div class="right">
+              <label for="t89">Remote command execution</label>
+              <div class="task">Task: Run a single remote command: <code>ssh user@host "ls -la"</code>.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t90"></div>
+            <div class="right">
+              <label for="t90">Basic SCP/SFTP GUI tools</label>
+              <div class="task">Task: Use FileZilla or Nautilus (Connect to Server) to SFTP into a VM and browse files.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 19 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 19 — Development Basics</div>
+              <div class="module-sub">Editors, compiling, and version control</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t91"></div>
+            <div class="right">
+              <label for="t91">Install VS Code or Geany</label>
+              <div class="task">Task: Install a code editor, open a new file, and save a simple "hello world" program (any language).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t92"></div>
+            <div class="right">
+              <label for="t92">Compile a small C program</label>
+              <div class="task">Task: Write a tiny C program, compile with <code>gcc hello.c -o hello</code> and run it.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t93"></div>
+            <div class="right">
+              <label for="t93">Intro to Git</label>
+              <div class="task">Task: Initialize a git repo in a folder and make your first commit.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t94"></div>
+            <div class="right">
+              <label for="t94">Python basics</label>
+              <div class="task">Task: Run <code>python3 -c "print('Hello from Python')"</code> and write a short script.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t95"></div>
+            <div class="right">
+              <label for="t95">Use package managers for languages</label>
+              <div class="task">Task: Install a Python package with <code>pip</code> (e.g., <code>pip install requests</code>).</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- MODULE 20 -->
+      <details class="module">
+        <summary>
+          <div class="module-left">
+            <div class="module-dot"></div>
+            <div>
+              <div class="module-title">Module 20 — Next Steps & Exploration</div>
+              <div class="module-sub">Where to go after the 100 videos</div>
+            </div>
+          </div>
+          <div class="chev">▶</div>
+        </summary>
+        <div class="topics">
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t96"></div>
+            <div class="right">
+              <label for="t96">Explore advanced distros</label>
+              <div class="task">Task: Read about Arch, Fedora, and Debian; pick one to learn more deeply.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t97"></div>
+            <div class="right">
+              <label for="t97">Learn container basics</label>
+              <div class="task">Task: Install Docker (or Podman) and run <code>docker run hello-world</code> inside a VM.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t98"></div>
+            <div class="right">
+              <label for="t98">Try a small server project</label>
+              <div class="task">Task: Set up a tiny static website using Nginx and place an index.html in /var/www/html (VM recommended).</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t99"></div>
+            <div class="right">
+              <label for="t99">Contribute to open source</label>
+              <div class="task">Task: Find a beginner-friendly issue on GitHub and read about how to contribute to that repo.</div>
+            </div>
+          </div>
+
+          <div class="topic">
+            <div class="left"><input type="checkbox" id="t100"></div>
+            <div class="right">
+              <label for="t100">Plan your next learning path</label>
+              <div class="task">Task: Create a 3-month learning plan (topics, practice, mini-project) in your notes app.</div>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+    </main>
+
+    <footer>
+      <div>Tip: This tracker saves progress in your browser storage. Use a VM or spare device for risky ops.</div>
+    </footer>
+  </div>
+
+  <script>
+    // Helper: get all checkboxes
+    const total = 100;
+    const checkboxes = [];
+    for(let i=1;i<=total;i++){
+      const el = document.getElementById('t'+i);
+      if(el) checkboxes.push(el);
+    }
+
+    // Load saved state & set listeners
+    function loadState(){
+      checkboxes.forEach((cb, idx) => {
+        try{
+          const key = 'linux_todo_' + (idx+1);
+          const saved = localStorage.getItem(key);
+          cb.checked = saved === 'true';
+        }catch(e){}
+      });
+      updateProgress();
+    }
+
+    function saveState(idx, value){
+      try{
+        localStorage.setItem('linux_todo_'+(idx+1), value ? 'true' : 'false');
+      }catch(e){}
+    }
+
+    function updateProgress(){
+      const done = checkboxes.filter(cb => cb.checked).length;
+      const pct = Math.round((done/total)*100);
+      document.getElementById('countText').innerText = 'Completed ' + done + ' / ' + total;
+      document.getElementById('percentText').innerText = pct + '%';
+      document.getElementById('barFill').style.width = pct + '%';
+    }
+
+    // attach listeners
+    checkboxes.forEach((cb, idx) => {
+      cb.addEventListener('change', (e) => {
+        saveState(idx, cb.checked);
+        updateProgress();
+      });
+    });
+
+    // Expand / Collapse all
+    const expandBtn = document.getElementById('expandAll');
+    const collapseBtn = document.getElementById('collapseAll');
+    expandBtn.addEventListener('click', () => {
+      document.querySelectorAll('details.module').forEach(d=> d.open = true);
+    });
+    collapseBtn.addEventListener('click', () => {
+      document.querySelectorAll('details.module').forEach(d=> d.open = false);
+    });
+
+    // Reset progress
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if(!confirm('Reset all progress? This will clear saved checkboxes.')) return;
+      checkboxes.forEach((cb, idx) => {
+        cb.checked = false;
+        try{ localStorage.removeItem('linux_todo_'+(idx+1)); }catch(e){}
+      });
+      updateProgress();
+    });
+
+    // make the small chevron show rotation by toggling attribute
+    document.querySelectorAll('details.module summary').forEach(s=>{
+      s.addEventListener('click', ()=>{
+        // small delay to ensure details[open] updated
+        setTimeout(()=>{}, 120);
+      });
+    });
+
+    // initial load
+    loadState();
+  </script>
+</body>
+</html>
