@@ -44,7 +44,16 @@ Once Debian is installed, update your system:
 ```bash
 sudo apt update && sudo apt upgrade -y
 ````
+---
+## 📦 Backup / Snapshot of System
 
+Once Debian is installed, Make sure take a snapshot of system to incase of messing something up.
+i'll suggest TimeShift to take backup.
+```bash
+sudo add-apt-repository -y ppa:teejee2008/timeshift
+sudo apt-get update
+sudo apt-get install timeshift
+````
 ---
 
 ## 🔎 Searching for an Application
@@ -256,6 +265,13 @@ tar -cvzf archive.tar.gz foldername/
   sudo apt install git -y
   ```
 
+---
+## Running Windows Apps on Linux
+you can set this apps to setting up win apps on linux 
+```
+https://github.com/winapps-org/winapps
+https://github.com/TibixDev/winboat
+````
 ---
 
 ## ✅ Quick Tips
