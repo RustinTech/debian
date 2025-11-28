@@ -4,6 +4,7 @@
 
 This guide is made for beginners who want to start using **Debian Linux** easily.  
 Just copy and paste the commands into your terminal.  
+Follow this [asignment](https://rustintech.github.io/debian/) and you will learn more 
 
 ---
 
