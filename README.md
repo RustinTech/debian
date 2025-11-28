@@ -64,7 +64,13 @@ Example: Searching for **VLC** or **Chrome**:
 sudo apt search vlc
 sudo apt search chrome
 ```
+---
+## 🔎 .Deb GUI Application Installer 
 
+Example: **Gdebi** helps to .deb file like Windows with Graphical User Interface. its unessary but usefull for new users.
+```bash
+sudo apt install gdebi
+```
 ---
 
 ## 🎥 Installing a Video Player
